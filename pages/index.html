@@ -22,6 +22,16 @@
                     </div>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <p class="progress-label">
+                        Utilisation CPU : 
+                    </p>
+                    <div class="progress">
+                        <div id="cpuUsage" class="progress-bar bg-primary" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <script
@@ -34,6 +44,7 @@
             //Reading arcade system constants
             function getConstants(){
                 getMemory();
+                getCPU();
             }
 
             function getMemory(){
@@ -42,6 +53,11 @@
                 memoryTotal = ($.ajax("/getRAMTotal",{async:false}).responseText)*1000;
                 memoryWidth = 100-((memoryAvail*100)/memoryTotal);
                 $("#ramUsage").css("width",memoryWidth+"%");
+            }
+
+            function getCPU(){
+                cpuUsage = parseFloat($.ajax("/getCPUUsage",{async:false}).responseText);
+                $("#cpuUsage").css("width", cpuUsage+"%");
             }
 
             $(document).ready(function(){

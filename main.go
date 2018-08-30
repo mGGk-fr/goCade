@@ -8,6 +8,7 @@ import (
 	"runtime"
 )
 
+// SYSTEM FUNCTIONS
 func execUnixSysCommand(c string) []byte {
 	out, err := exec.Command("sh", "-c", c).Output()
 	if err != nil {
@@ -21,6 +22,7 @@ func execWinSysCommand(c string) []byte {
 	return nil
 }
 
+// HTTP FUNCTIONS
 func httpRAMUsage(w http.ResponseWriter, r *http.Request) {
 	var co []byte
 	switch runtime.GOOS {
@@ -55,7 +57,31 @@ func httpCPUUsage(w http.ResponseWriter, r *http.Request) {
 }
 
 func httpCurrentGame(w http.ResponseWriter, r *http.Request) {
+	var co []byte
+	switch runtime.GOOS {
+	case "linux", "darwin":
+		co = execUnixSysCommand("ps -ef | grep '[/]usr/bin/mame' | awk '{printf $NF}'")
+	case "windows":
+		co = execWinSysCommand("")
+	}
+	var gn = retriveGameName(string(co[:]))
+	w.Write([]byte(gn))
+}
 
+// UTILS FUNCTIONS
+func retriveGameName(g string) string {
+	var co []byte
+	if g == "" {
+		return "Pas de jeu en cours"
+	}
+	switch runtime.GOOS {
+	case "linux", "darwin":
+		co = execUnixSysCommand("mame -listfull " + g + " | sed -n 2p | cut -d'\"' -f2")
+		return string(co[:])
+	case "windows":
+		return ""
+	}
+	return "ERREUR"
 }
 
 func main() {
